@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-{% load staticfiles %}
 <html>
     <head>
         <meta charset="utf-8">
@@ -10,13 +9,13 @@
     <body>
         <nav class="navbar navbar-default">
             <div class="container">
-                <a class="navbar-brand" href="{% url_for('showCatalog') %}">Catalog App</a>
+                <a class="navbar-brand" href="{{ url_for('showCatalog') }}">Catalog App</a>
                 <ul class="nav navbar-nav">
-                    <li><a href="{% url_for('showCatalog') %}">Home</a></li>
+                    <li><a href="{{ url_for('showCatalog') }}">Home</a></li>
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="{% url_for('login') %}">Login</a></li>
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
                 </ul>
 
             </div>
@@ -24,8 +23,13 @@
 
         <div class="container">
             <div class="jumbotron">
-                {% block content %}
-                {% endblock %}
+                <div class="col-md-9">
+                    <h2>Categories</h2>
+                </div>
+                <div class="col-md-3">
+                    {% block content %}
+                    {% endblock %}
+                </div>
             </div>
         </div>
     </body>

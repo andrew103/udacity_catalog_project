@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, g, url_for, redirect
+from flask import Flask, jsonify, request, g, url_for, redirect, render_template
 from models import Base, User, Category, Item
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -6,6 +6,9 @@ from functools import wraps
 
 from flask.ext.httpauth import HTTPBasicAuth
 auth = HTTPBasicAuth()
+
+from redis import Redis
+redis = Redis()
 
 engine = create_engine('sqlite:///catalog.db')
 
@@ -100,61 +103,70 @@ def jsonItem(cat_name, item_name):
 
 @app.route('/login')
 def login():
-    return "This page is where a user can login or sign up"
+    return render_template('login.html')
 
 
 @app.route('/')
 @app.route('/catalog')
 def showCatalog():
-    return "This is the index page that will show all categories and the latest items added"
+    categories = session.query(Category).all()
+    return render_template('catalog.html', categories=categories)
 
 
 @app.route('/catalog/new')
 @auth.login_required
 def newCategory():
-    return "This page allows signed-in users to create new categories"
+    categories = session.query(Category).all()
+    return render_template('newcategory.html')
 
 
 @app.route('/catalog/<string:cat_name>/edit')
 @auth.login_required
 def editCategory(cat_name):
-    return "This page allows signed-in users to edit their categories"
+    categories = session.query(Category).all()
+    return render_template('editcategory.html', categories=categories, cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>/delete')
 @auth.login_required
 def deleteCategory(cat_name):
-    return "This page allows a signed-in user to delete a category they created"
+    categories = session.query(Category).all()
+    return render_template('deletecategory.html', categories=categories, cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>')
 @app.route('/catalog/<string:cat_name>/items')
 def showCatItems(cat_name):
-    return "This page will show all the items for a given category"
+    categories = session.query(Category).all()
+    return render_template('showitems.html', categories=categories, cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>/new')
 @auth.login_required
 def newItem(cat_name):
-    return "This page allows a signed-in user to add a new item to a category"
+    categories = session.query(Category).all()
+    return render_template('newitem.html', categories=categories, cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/edit')
 @auth.login_required
 def editItem(cat_name, item_name):
-    return "This page allows a signed-in user to edit their items"
+    categories = session.query(Category).all()
+    return render_template('edititem.html', categories=categories, cat_name=cat_name, item_name=item_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/delete')
 @auth.login_required
 def deleteItem(cat_name, item_name):
-    return "This page allows a signed-in user to delete their items"
+    categories = session.query(Category).all()
+    return render_template('deleteitem.html', categories=categories, cat_name=cat_name, item_name=item_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>')
 @auth.login_required
 def showItemDescription(cat_name, item_name):
-    return "This page will show the description of a specified item"
+    categories = session.query(Category).all()
+    return render_template('showitemdetail.html', categories=categories, cat_name=cat_name, item_name=item_name)
 
 
 
