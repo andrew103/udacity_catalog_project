@@ -25,11 +25,11 @@ class User(Base):
     @property
     def serialize(self):
         return {
-            'id' = self.id
-            'name' = self.name
-            'email' = self.email
-            'picture' = self.picture
-            'hash' = self.password_hash
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'picture': self.picture,
+            'hash': self.password_hash,
         }
 
 
@@ -44,9 +44,9 @@ class Category(Base):
     @property
     def serialize(self):
         return {
-            'id' = self.id
-            'name' = self.name
-            'creator' = self.user_id
+            'id': self.id,
+            'name': self.name,
+            'creator': self.user_id,
         }
 
 
@@ -63,10 +63,10 @@ class Item(Base):
     @property
     def serialize(self):
         return {
-            'id' = self.id
-            'name' = self.name
-            'creator' = self.user_id
-            'category' = self.cat_id
+            'id': self.id,
+            'name': self.name,
+            'creator': self.user_id,
+            'category': self.cat_id,
         }
 
 

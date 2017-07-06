@@ -1,7 +1,11 @@
 from flask import Flask, jsonify, request, g, url_for, redirect
 from models import Base, User, Category, Item
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from functools import wraps
+
+from flask.ext.httpauth import HTTPBasicAuth
+auth = HTTPBasicAuth()
 
 engine = create_engine('sqlite:///catalog.db')
 
@@ -68,13 +72,13 @@ def inject_x_rate_headers(response):
 
 # ================= BEGIN LOGIN REQUIREMENT CODE ==============
 
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if g.user is None:
-            return redirect(url_for('login', next=request.url))
-        return f(*args, **kwargs)
-    return decorated_function
+@auth.verify_password
+def verify_password(username, password):
+    user = session.query(User).filter_by(name = username).first()
+    if not user or not user.verify_password(password):
+        return False
+    g.user = user
+    return True
 
 # ================== END LOGIN REQUIREMENT CODE ===============
 
@@ -106,19 +110,19 @@ def showCatalog():
 
 
 @app.route('/catalog/new')
-@login_required
+@auth.login_required
 def newCategory():
     return "This page allows signed-in users to create new categories"
 
 
-@app.route('/catalog/<string:cat_name/edit')
-@login_required
+@app.route('/catalog/<string:cat_name>/edit')
+@auth.login_required
 def editCategory(cat_name):
     return "This page allows signed-in users to edit their categories"
 
 
 @app.route('/catalog/<string:cat_name>/delete')
-@login_required
+@auth.login_required
 def deleteCategory(cat_name):
     return "This page allows a signed-in user to delete a category they created"
 
@@ -130,31 +134,31 @@ def showCatItems(cat_name):
 
 
 @app.route('/catalog/<string:cat_name>/new')
-@login_required
+@auth.login_required
 def newItem(cat_name):
     return "This page allows a signed-in user to add a new item to a category"
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/edit')
-@login_required
+@auth.login_required
 def editItem(cat_name, item_name):
     return "This page allows a signed-in user to edit their items"
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/delete')
-@login_required
+@auth.login_required
 def deleteItem(cat_name, item_name):
     return "This page allows a signed-in user to delete their items"
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>')
-@login_required
+@auth.login_required
 def showItemDescription(cat_name, item_name):
     return "This page will show the description of a specified item"
 
 
 
-if __name__ == "__main__"
+if __name__ == "__main__":
     app.secret_key = "super_secret_key"
     app.debug = True
     app.run(host="0.0.0.0", port=8000)
