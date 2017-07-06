@@ -11,16 +11,12 @@ class User(Base):
     __tablename__ = 'user'
 
 
-class Proposal(Base):
-    __tablename__ = 'proposal'
+class Category(Base):
+    __tablename__ = 'category'
 
 
-class Request(Base):
-    __tablename__ = 'request'
-
-
-class MealDate(Base):
-    __tablename__ = 'mealdate'
+class Item(Base):
+    __tablename__ = 'item'
 
 
 engine = create_engine('sqlite:///usersWithOAuth.db')
