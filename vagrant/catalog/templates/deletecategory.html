@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Delete {{ cat_name }}?</h1>
+<h2>Delete {{ cat_name }}?</h2>
 
 <form action="{{ url_for('deleteCategory', cat_name=cat_name) }}" method="post">
     <button type="submit" class="btn btn-danger">Delete</button>

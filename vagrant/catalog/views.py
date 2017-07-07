@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from functools import wraps
 
 import flask_login
+from flask_login import LoginManager
 login = flask_login.login_user
 logout = flask_login.logout_user
 
@@ -152,24 +153,24 @@ def showCatalog():
 
 
 @app.route('/catalog/new', methods=['GET', 'POST'])
-@auth.login_required
+# @auth.login_required
 def newCategory():
     categories = session.query(Category).all()
     if request.method == 'POST':
         name = request.form['cat_name']
-        user = flask_login.current_user
+        # user = flask_login.current_user
 
-        newCat = Category(name=name, user_id=user.id)
+        newCat = Category(name=name)#, user_id=user.id)
         session.add(newCat)
         session.commit()
 
-        return redirect(url_for('showCatalog'))
+        return redirect(url_for('showCatItems', cat_name=name))
     else:
         return render_template('newcategory.html', categories=categories)
 
 
 @app.route('/catalog/<string:cat_name>/edit', methods=['GET', 'POST'])
-@auth.login_required
+# @auth.login_required
 def editCategory(cat_name):
     categories = session.query(Category).all()
     if request.method == 'POST':
@@ -178,13 +179,13 @@ def editCategory(cat_name):
         editedCat = session.query(Category).filter_by(name=cat_name).one()
         editedCat.name = name
 
-        return redirect(url_for('showCatalog'))
+        return redirect(url_for('showCatItems', cat_name=name))
     else:
         return render_template('editcategory.html', categories=categories, cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>/delete', methods=['GET', 'POST'])
-@auth.login_required
+# @auth.login_required
 def deleteCategory(cat_name):
     categories = session.query(Category).all()
     if request.method == 'POST':
@@ -207,26 +208,26 @@ def showCatItems(cat_name):
 
 
 @app.route('/catalog/<string:cat_name>/new', methods=['GET', 'POST'])
-@auth.login_required
+# @auth.login_required
 def newItem(cat_name):
     categories = session.query(Category).all()
     if request.method == 'POST':
         name = request.form['item_name']
         description = request.form['item_description']
         cat = session.query(Category).filter_by(name=cat_name).one()
-        user = flask_login.current_user
+        # user = flask_login.current_user
 
-        createdItem = Item(name=name, description=description, user_id=user.id, cat_id=cat.id)
+        createdItem = Item(name=name, description=description, cat_id=cat.id)#user_id=user.id,
         session.add(createdItem)
         session.commit()
 
-        return redirect(url_for('showCatItems', cat_name=cat_name))
+        return redirect(url_for('showItemDescription', cat_name=cat_name, item_name=name))
     else:
         return render_template('newitem.html', categories=categories, cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/edit', methods=['GET', 'POST'])
-@auth.login_required
+# @auth.login_required
 def editItem(cat_name, item_name):
     categories = session.query(Category).all()
     if request.method == 'POST':
@@ -237,13 +238,13 @@ def editItem(cat_name, item_name):
         editedItem.name = name
         editedItem.description = description
 
-        return redirect(url_for('showCatItems', cat_name=cat_name))
+        return redirect(url_for('showItemDescription', cat_name=cat_name, item_name=name))
     else:
         return render_template('edititem.html', categories=categories, cat_name=cat_name, item_name=item_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/delete', methods=['GET', 'POST'])
-@auth.login_required
+# @auth.login_required
 def deleteItem(cat_name, item_name):
     categories = session.query(Category).all()
     if request.method == 'POST':
@@ -257,10 +258,10 @@ def deleteItem(cat_name, item_name):
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>')
-@auth.login_required
+# @auth.login_required
 def showItemDescription(cat_name, item_name):
     categories = session.query(Category).all()
-    item = session.query(Item).filter_by(name=item_name)
+    item = session.query(Item).filter_by(name=item_name).one()
     return render_template('showitemdetail.html', categories=categories, cat_name=cat_name, item=item)
 
 

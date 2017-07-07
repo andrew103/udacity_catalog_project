@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>{{ cat_name }} Items</h1>
+<h2>{{ cat_name }} Items</h2>
+<a class="btn btn-default" href="{{ url_for('editCategory', cat_name=cat_name) }}">Edit Category</a>
+<a class="btn btn-danger" href="{{ url_for('deleteCategory', cat_name=cat_name) }}">Delete Category</a>
 
 {% for item in items %}
-    <a href="{{ url_for('showItemDescription', cat_name=cat_name, item_name=item.name) }}">{{ item.name }}</a>
-    <br>
+    <p><a href="{{ url_for('showItemDescription', cat_name=cat_name, item_name=item.name) }}">{{ item.name }}</a></p>
 {% endfor %}
 <a class="btn btn-default" href="{{ url_for('newItem', cat_name=cat_name) }}">Add New Item</a>
 

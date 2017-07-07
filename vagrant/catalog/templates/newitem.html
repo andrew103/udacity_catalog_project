@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>New Item</h1>
+<h2>New Item</h2>
 
-<form action="{{ url_for('newItem', cat_name=cat_name) }}" method="post">
+<form id="form" action="{{ url_for('newItem', cat_name=cat_name) }}" method="post">
     <div class="form-group">
-        <label for="item_name">Item Name</label>
+        <label for="item_name">Item Name</label><br>
         <input type="text" name="item_name">
     </div>
     <div class="form-group">
-        <label for="item_description">Description</label>
-        <input type="textarea" name="item_Description">
+        <label for="item_description">Description</label><br>
+        <textarea form="form" name="item_description" rows="8" cols="80"></textarea>
     </div>
     <button type="submit" class="btn btn-primary">Add</button>
-    <a href="{{ url_for('showCatItems') }}">Cancel</a>
+    <a href="{{ url_for('showCatItems', cat_name=cat_name) }}">Cancel</a>
 </form>
 
 {% endblock %}
