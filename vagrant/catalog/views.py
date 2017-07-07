@@ -101,14 +101,20 @@ def jsonItem(cat_name, item_name):
     return "This page is where a json file of an item and its attributes can be obtained"
 
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+    if request.method == 'POST':
+        pass
+    else:
+        return render_template('login.html')
 
 
-@app.route('/signup')
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    return render_template('signup.html')
+    if request.method == 'POST':
+        pass
+    else:
+        return render_template('signup.html')
 
 
 @app.route('/')
