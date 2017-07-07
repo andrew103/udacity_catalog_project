@@ -187,7 +187,14 @@ def editCategory(cat_name):
 @auth.login_required
 def deleteCategory(cat_name):
     categories = session.query(Category).all()
-    return render_template('deletecategory.html', categories=categories, cat_name=cat_name)
+    if request.method == 'POST':
+        currentCat = session.query(Category).filter_by(name=cat_name).one()
+        session.delete(currentCat)
+        session.commit()
+
+        return redirect(url_for('showCatalog'))
+    else:
+        return render_template('deletecategory.html', categories=categories, cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>')
@@ -197,9 +204,9 @@ def showCatItems(cat_name):
     return render_template('showitems.html', categories=categories, cat_name=cat_name)
 
 
-@app.route('/catalog/<string:cat_name>/new')
+@app.route('/catalog/<string:cat_name>/new', methods=['GET', 'POST'])
 @auth.login_required
-def newItem(cat_name, methods=['GET', 'POST']):
+def newItem(cat_name):
     categories = session.query(Category).all()
     if request.method == 'POST':
         name = request.form['item_name']
@@ -216,9 +223,9 @@ def newItem(cat_name, methods=['GET', 'POST']):
         return render_template('newitem.html', categories=categories, cat_name=cat_name)
 
 
-@app.route('/catalog/<string:cat_name>/<string:item_name>/edit')
+@app.route('/catalog/<string:cat_name>/<string:item_name>/edit', methods=['GET', 'POST'])
 @auth.login_required
-def editItem(cat_name, item_name, methods=['GET', 'POST']):
+def editItem(cat_name, item_name):
     categories = session.query(Category).all()
     if request.method == 'POST':
         name = request.form['item_name']
@@ -233,18 +240,26 @@ def editItem(cat_name, item_name, methods=['GET', 'POST']):
         return render_template('edititem.html', categories=categories, cat_name=cat_name, item_name=item_name)
 
 
-@app.route('/catalog/<string:cat_name>/<string:item_name>/delete')
+@app.route('/catalog/<string:cat_name>/<string:item_name>/delete', methods=['GET', 'POST'])
 @auth.login_required
-def deleteItem(cat_name, item_name, methods=['GET', 'POST']):
+def deleteItem(cat_name, item_name):
     categories = session.query(Category).all()
-    return render_template('deleteitem.html', categories=categories, cat_name=cat_name, item_name=item_name)
+    if request.method == 'POST':
+        currentItem = session.query(Item).filter_by(name=item_name).one()
+        session.delete(currentItem)
+        session.commit()
+
+        return redirect(url_for('showCatItems', cat_name=cat_name))
+    else:
+        return render_template('deleteitem.html', categories=categories, cat_name=cat_name, item_name=item_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>')
 @auth.login_required
 def showItemDescription(cat_name, item_name):
     categories = session.query(Category).all()
-    return render_template('showitemdetail.html', categories=categories, cat_name=cat_name, item_name=item_name)
+    item = session.query(Item).filter_by(name=item_name)
+    return render_template('showitemdetail.html', categories=categories, item=item)
 
 
 
