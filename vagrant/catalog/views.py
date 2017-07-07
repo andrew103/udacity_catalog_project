@@ -328,18 +328,21 @@ def gdisconnect():
 
 @app.route('/catalog/json')
 def jsonCatalog():
-    return "This page is where a json file of the catalog can be obtained"
+    categories = session.query(Category).all()
+    return jsonify(Categories=[i.serialize for i in categories])
 
 
 @app.route('/catalog/<string:cat_name>/json')
 @app.route('/catalog/<string:cat_name>/items/json')
 def jsonCatItems(cat_name):
-    return "This page is where a json file of the category items can be obtained"
+    catitems = session.query(Item).filter_by(cat_name=cat_name).all()
+    return jsonify(CatItems=[i.serialize for i in catitems])
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/json')
 def jsonItem(cat_name, item_name):
-    return "This page is where a json file of an item and its attributes can be obtained"
+    item = session.query(Item).filter_by(name=item_name)
+    return jsonify(MenuItems=item.serialize)
 
 
 @app.route('/login', methods=['GET', 'POST'])
