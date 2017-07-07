@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Show Category Items</h1>
+<h1>{{ cat_name }} Items</h1>
+
+{% for item in items %}
+    <a href="{{ url_for('showItemDescription', cat_name=cat_name, item_name=item.name) }}">{{ item.name }}</a>
+    <br>
+{% endfor %}
+<a class="btn btn-default" href="{{ url_for('newItem', cat_name=cat_name) }}">Add New Item</a>
 
 {% endblock %}

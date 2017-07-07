@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Show Item Details</h1>
+<h1>{{ item.name }}</h1>
+<p>{{ item.description }}</p>
+<a href="{{ url_for('editItem', cat_name=cat_name, item_name=item.name) }}">Edit</a>
+<a href="{{ url_for('deleteItem', cat_name=cat_name, item_name=item.name) }}">Delete</a>
+<a href="{{ url_for('showCatItems', cat_name=cat_name) }}">Back</a>
 
 {% endblock %}

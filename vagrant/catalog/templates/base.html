@@ -29,6 +29,7 @@
                         {% for category in categories %}
                             <p><a href="{{ url_for('showCatItems', cat_name=category.name) }}">{{ category.name }}</a></p>
                         {% endfor %}
+                        <a class="btn btn-default" href="{{ url_for('newCategory') }}">Add New Category</a>
                     </div>
                     <div class="col-lg-9">
                         {% block content %}

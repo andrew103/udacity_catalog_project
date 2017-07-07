@@ -201,7 +201,9 @@ def deleteCategory(cat_name):
 @app.route('/catalog/<string:cat_name>/items')
 def showCatItems(cat_name):
     categories = session.query(Category).all()
-    return render_template('showitems.html', categories=categories, cat_name=cat_name)
+    currentCat = session.query(Category).filter_by(name=cat_name).one()
+    items = session.query(Item).filter_by(cat_id=currentCat.id).all()
+    return render_template('showitems.html', categories=categories, cat_name=cat_name, items=items)
 
 
 @app.route('/catalog/<string:cat_name>/new', methods=['GET', 'POST'])
@@ -259,7 +261,7 @@ def deleteItem(cat_name, item_name):
 def showItemDescription(cat_name, item_name):
     categories = session.query(Category).all()
     item = session.query(Item).filter_by(name=item_name)
-    return render_template('showitemdetail.html', categories=categories, item=item)
+    return render_template('showitemdetail.html', categories=categories, cat_name=cat_name, item=item)
 
 
 
