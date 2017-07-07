@@ -36,14 +36,17 @@
                       </ul>
                     {% endif %}
                 {% endwith %}
-                
+
                 <div class="row">
                     <div class="col-lg-3">
                         <h2>Categories</h2>
                         {% for category in categories %}
                             <p><a href="{{ url_for('showCatItems', cat_name=category.name) }}">{{ category.name }}</a></p>
                         {% endfor %}
-                        <a class="btn btn-default" href="{{ url_for('newCategory') }}">Add New Category</a>
+
+                        {% if current_user.is_authenticated %}
+                            <a class="btn btn-default" href="{{ url_for('newCategory') }}">Add New Category</a>
+                        {% endif %}
                     </div>
                     <div class="col-lg-9">
                         {% block content %}
