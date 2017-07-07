@@ -3,4 +3,11 @@
 
 <h1>New Category</h1>
 
+<form action="{{ url_for('newCategory') }}" method="post">
+    <div class="form-group">
+        <label for="cat_name">Category Name</label>
+        <input type="text" name="cat_name">
+    </div>
+</form>
+
 {% endblock %}

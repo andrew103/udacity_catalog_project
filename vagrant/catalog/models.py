@@ -53,6 +53,7 @@ class Item(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(200), nullable=False)
+    description = Column(String(500))
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
     cat_id = Column(Integer, ForeignKey('category.id'))
@@ -63,6 +64,7 @@ class Item(Base):
         return {
             'id': self.id,
             'name': self.name,
+            'description': self.description,
             'creator': self.user_id,
             'category': self.cat_id,
         }

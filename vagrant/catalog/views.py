@@ -151,21 +151,39 @@ def showCatalog():
     return render_template('catalog.html', categories=categories, latest=latest)
 
 
-@app.route('/catalog/new')
+@app.route('/catalog/new', methods=['GET', 'POST'])
 @auth.login_required
 def newCategory():
     categories = session.query(Category).all()
-    return render_template('newcategory.html')
+    if request.method == 'POST':
+        name = request.form['cat_name']
+        user = flask_login.current_user
+
+        newCat = Category(name=name, user_id=user.id)
+        session.add(newCat)
+        session.commit()
+
+        return redirect(url_for('showCatalog'))
+    else:
+        return render_template('newcategory.html', categories=categories)
 
 
-@app.route('/catalog/<string:cat_name>/edit')
+@app.route('/catalog/<string:cat_name>/edit', methods=['GET', 'POST'])
 @auth.login_required
 def editCategory(cat_name):
     categories = session.query(Category).all()
-    return render_template('editcategory.html', categories=categories, cat_name=cat_name)
+    if request.method == 'POST':
+        name = request.form['cat_name']
+
+        editedCat = session.query(Category).filter_by(name=cat_name).one()
+        editedCat.name = name
+
+        return redirect(url_for('showCatalog'))
+    else:
+        return render_template('editcategory.html', categories=categories, cat_name=cat_name)
 
 
-@app.route('/catalog/<string:cat_name>/delete')
+@app.route('/catalog/<string:cat_name>/delete', methods=['GET', 'POST'])
 @auth.login_required
 def deleteCategory(cat_name):
     categories = session.query(Category).all()
@@ -181,21 +199,43 @@ def showCatItems(cat_name):
 
 @app.route('/catalog/<string:cat_name>/new')
 @auth.login_required
-def newItem(cat_name):
+def newItem(cat_name, methods=['GET', 'POST']):
     categories = session.query(Category).all()
-    return render_template('newitem.html', categories=categories, cat_name=cat_name)
+    if request.method == 'POST':
+        name = request.form['item_name']
+        description = request.form['item_description']
+        cat = session.query(Category).filter_by(name=cat_name).one()
+        user = flask_login.current_user
+
+        createdItem = Item(name=name, description=description, user_id=user.id, cat_id=cat.id)
+        session.add(createdItem)
+        session.commit()
+
+        return redirect(url_for('showCatItems', cat_name=cat_name))
+    else:
+        return render_template('newitem.html', categories=categories, cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/edit')
 @auth.login_required
-def editItem(cat_name, item_name):
+def editItem(cat_name, item_name, methods=['GET', 'POST']):
     categories = session.query(Category).all()
-    return render_template('edititem.html', categories=categories, cat_name=cat_name, item_name=item_name)
+    if request.method == 'POST':
+        name = request.form['item_name']
+        description = request.form['item_description']
+
+        editedItem = session.query(Item).filter_by(name=item_name).one()
+        editedItem.name = name
+        editedItem.description = description
+
+        return redirect(url_for('showCatItems', cat_name=cat_name))
+    else:
+        return render_template('edititem.html', categories=categories, cat_name=cat_name, item_name=item_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/delete')
 @auth.login_required
-def deleteItem(cat_name, item_name):
+def deleteItem(cat_name, item_name, methods=['GET', 'POST']):
     categories = session.query(Category).all()
     return render_template('deleteitem.html', categories=categories, cat_name=cat_name, item_name=item_name)
 

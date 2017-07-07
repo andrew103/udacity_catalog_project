@@ -1,6 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Add Item</h1>
+<h1>New Item</h1>
+
+<form action="{{ url_for('newItem', cat_name=cat_name) }}" method="post">
+    <div class="form-group">
+        <label for="item_name">Item Name</label>
+        <input type="text" name="item_name">
+    </div>
+    <div class="form-group">
+        <label for="item_description">Description</label>
+        <input type="textarea" name="item_Description">
+    </div>
+</form>
 
 {% endblock %}
