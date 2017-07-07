@@ -4,6 +4,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from functools import wraps
 
+import flask_login
+login = flask_login.login_user
+logout = flask_login.logout_user
+
 from flask.ext.httpauth import HTTPBasicAuth
 auth = HTTPBasicAuth()
 
@@ -104,7 +108,21 @@ def jsonItem(cat_name, item_name):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        pass
+        email = request.form['emailinput']
+        password = request.form['passinput']
+        try:
+            user = session.query(User).filter_by(email=email).one()
+            if user.verify_password(password):
+                login(user)
+                flash("You have logged in successfully" + user.name)
+                return redirect(url_for('showCatalog'))
+            else:
+                flash("You have entered an incorrect password. Please try again")
+                return redirect(url_for('login'))
+
+        except:
+            flash("User does not exist. Please create an account")
+            return redirect(url_for('signup'))
     else:
         return render_template('login.html')
 
@@ -112,7 +130,15 @@ def login():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        pass
+        user = request.form['nameinput']
+        email = request.form['emailinput']
+        password = request.form['passinput']
+        newUser = User(name=user, email=email)
+        newUser.hash_password(password)
+
+        session.add(newUser)
+        session.commit()
+        return redirect(url_for('login.html'))
     else:
         return render_template('signup.html')
 

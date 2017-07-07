@@ -13,7 +13,6 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(200), nullable=False)
     email = Column(String(200))
-    picture = Column(String(250))
     password_hash = Column(String(64))
 
     def hash_password(self, password):
@@ -28,7 +27,6 @@ class User(Base):
             'id': self.id,
             'name': self.name,
             'email': self.email,
-            'picture': self.picture,
             'hash': self.password_hash,
         }
 
