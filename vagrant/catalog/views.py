@@ -106,11 +106,17 @@ def login():
     return render_template('login.html')
 
 
+@app.route('/signup')
+def signup():
+    return render_template('signup.html')
+
+
 @app.route('/')
 @app.route('/catalog')
 def showCatalog():
     categories = session.query(Category).all()
-    return render_template('catalog.html', categories=categories)
+    latest = session.query(Item).all()[-1:-10]
+    return render_template('catalog.html', categories=categories, latest=latest)
 
 
 @app.route('/catalog/new')

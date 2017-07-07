@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Main Catalog Page</h1>
+<h2>Latest Items</h2>
+
+{% for item in latest %}
+    <p><a href="{{ url_for('showitemdetail', cat_name=category.name, item_name=item.name) }}">{{ item.name }}</a> ({{ category.name }})</p>
+{% endfor %}
 
 {% endblock %}
