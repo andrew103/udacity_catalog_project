@@ -156,22 +156,21 @@ def fbconnect():
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
 
-    login_session['picture'] = data["data"]["url"]
-
     # see if user exists
     user_id = getUserID(login_session['email'])
     if not user_id:
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
 
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    flask_login.login_user(user)
+    user.is_authenticated = True
+
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
-
     output += '!</h1>'
-    output += '<img src="'
-    output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
 
     flash("Now logged in as %s" % login_session['username'])
     return output
@@ -267,15 +266,18 @@ def gconnect():
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
 
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    flask_login.login_user(user)
+    user.is_authenticated = True
+
+
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
     output += '!</h1>'
-    output += '<img src="'
-    output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+
     flash("you are now logged in as %s" % login_session['username'])
-    print "done!"
     return output
 
 
@@ -396,7 +398,7 @@ def signup():
 @app.route('/catalog')
 def showCatalog():
     categories = session.query(Category).all()
-    latest = session.query(Item).all()[-1:-10]
+    latest = session.query(Item).all()[-5:]
     return render_template('catalog.html',
                             categories=categories,
                             latest=latest)
@@ -461,7 +463,7 @@ def deleteCategory(cat_name):
 def showCatItems(cat_name):
     categories = session.query(Category).all()
     currentCat = session.query(Category).filter_by(name=cat_name).one()
-    items = session.query(Item).filter_by(cat_id=currentCat.id).all()
+    items = session.query(Item).filter_by(cat_name=currentCat.name).all()
     return render_template('showitems.html',
                             categories=categories,
                             cat_name=cat_name,
@@ -479,7 +481,7 @@ def newItem(cat_name):
         user = flask_login.current_user
 
         createdItem = Item(name=name, description=description,
-                            cat_id=cat.id, user_id=user.id)
+                            cat_name=cat.name, user_id=user.id)
         session.add(createdItem)
         session.commit()
 

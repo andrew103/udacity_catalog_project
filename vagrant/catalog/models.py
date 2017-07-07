@@ -61,7 +61,7 @@ class Item(Base):
     description = Column(String(500))
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
-    cat_id = Column(Integer, ForeignKey('category.id'))
+    cat_name = Column(Integer, ForeignKey('category.name'))
     category = relationship(Category)
 
     @property
