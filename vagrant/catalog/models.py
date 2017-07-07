@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, create_engine
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -14,12 +14,17 @@ class User(Base):
     name = Column(String(200), nullable=False)
     email = Column(String(200))
     password_hash = Column(String(64))
+    is_authenticated = Column(Boolean)
+    is_active = Column(Boolean)
 
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)
 
     def verify_password(self, password):
         return pwd_context.verify(password, self.password_hash)
+
+    def get_id(self):
+        return unicode(self.id)
 
     @property
     def serialize(self):

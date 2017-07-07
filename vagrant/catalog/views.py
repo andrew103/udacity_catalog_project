@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, g, url_for, redirect, render_template
+from flask import Flask, jsonify, request, g, url_for, redirect, render_template, flash
 from models import Base, User, Category, Item
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -6,8 +6,7 @@ from functools import wraps
 
 import flask_login
 from flask_login import LoginManager
-login = flask_login.login_user
-logout = flask_login.logout_user
+login_manager = LoginManager()
 
 from flask.ext.httpauth import HTTPBasicAuth
 auth = HTTPBasicAuth()
@@ -88,6 +87,11 @@ def verify_password(username, password):
     g.user = user
     return True
 
+@login_manager.user_loader
+def load_user(user_id):
+    user = session.query(User).filter_by(id=int(user_id)).one()
+    return user
+
 # ================== END LOGIN REQUIREMENT CODE ===============
 
 @app.route('/catalog/json')
@@ -111,21 +115,31 @@ def login():
     if request.method == 'POST':
         email = request.form['emailinput']
         password = request.form['passinput']
+        user = session.query(User).filter_by(email=email).one()
         try:
-            user = session.query(User).filter_by(email=email).one()
             if user.verify_password(password):
-                login(user)
-                flash("You have logged in successfully" + user.name)
+                flask_login.login_user(user, force=True)
+                flash("You have logged in successfully " + user.name)
+                user.is_authenticated = True
                 return redirect(url_for('showCatalog'))
             else:
                 flash("You have entered an incorrect password. Please try again")
                 return redirect(url_for('login'))
-
         except:
             flash("User does not exist. Please create an account")
             return redirect(url_for('signup'))
     else:
         return render_template('login.html')
+
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    if request.method == 'POST':
+        flask_login.logout_user()
+        flash("Logout Successful")
+        return redirect(url_for('showCatalog'))
+    else:
+        return render_template('logout.html')
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -139,7 +153,8 @@ def signup():
 
         session.add(newUser)
         session.commit()
-        return redirect(url_for('login.html'))
+        flash("You have successfully signed up. Please Login")
+        return redirect(url_for('login'))
     else:
         return render_template('signup.html')
 
@@ -153,24 +168,25 @@ def showCatalog():
 
 
 @app.route('/catalog/new', methods=['GET', 'POST'])
-# @auth.login_required
+@flask_login.login_required
 def newCategory():
     categories = session.query(Category).all()
     if request.method == 'POST':
         name = request.form['cat_name']
-        # user = flask_login.current_user
+        user = flask_login.current_user
 
-        newCat = Category(name=name)#, user_id=user.id)
+        newCat = Category(name=name, user_id=user.id)
         session.add(newCat)
         session.commit()
 
+        flash("Created " + str(name) + " successfully")
         return redirect(url_for('showCatItems', cat_name=name))
     else:
         return render_template('newcategory.html', categories=categories)
 
 
 @app.route('/catalog/<string:cat_name>/edit', methods=['GET', 'POST'])
-# @auth.login_required
+@flask_login.login_required
 def editCategory(cat_name):
     categories = session.query(Category).all()
     if request.method == 'POST':
@@ -179,13 +195,14 @@ def editCategory(cat_name):
         editedCat = session.query(Category).filter_by(name=cat_name).one()
         editedCat.name = name
 
+        flash("Edited " + str(name) + " successfully")
         return redirect(url_for('showCatItems', cat_name=name))
     else:
         return render_template('editcategory.html', categories=categories, cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>/delete', methods=['GET', 'POST'])
-# @auth.login_required
+@flask_login.login_required
 def deleteCategory(cat_name):
     categories = session.query(Category).all()
     if request.method == 'POST':
@@ -193,6 +210,7 @@ def deleteCategory(cat_name):
         session.delete(currentCat)
         session.commit()
 
+        flash("Category deleted")
         return redirect(url_for('showCatalog'))
     else:
         return render_template('deletecategory.html', categories=categories, cat_name=cat_name)
@@ -208,26 +226,27 @@ def showCatItems(cat_name):
 
 
 @app.route('/catalog/<string:cat_name>/new', methods=['GET', 'POST'])
-# @auth.login_required
+@flask_login.login_required
 def newItem(cat_name):
     categories = session.query(Category).all()
     if request.method == 'POST':
         name = request.form['item_name']
         description = request.form['item_description']
         cat = session.query(Category).filter_by(name=cat_name).one()
-        # user = flask_login.current_user
+        user = flask_login.current_user
 
-        createdItem = Item(name=name, description=description, cat_id=cat.id)#user_id=user.id,
+        createdItem = Item(name=name, description=description, cat_id=cat.id, user_id=user.id)
         session.add(createdItem)
         session.commit()
 
+        flash("Created " + str(name) + " successfully")
         return redirect(url_for('showItemDescription', cat_name=cat_name, item_name=name))
     else:
         return render_template('newitem.html', categories=categories, cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/edit', methods=['GET', 'POST'])
-# @auth.login_required
+@flask_login.login_required
 def editItem(cat_name, item_name):
     categories = session.query(Category).all()
     if request.method == 'POST':
@@ -238,13 +257,14 @@ def editItem(cat_name, item_name):
         editedItem.name = name
         editedItem.description = description
 
+        flash("Edited " + str(name) + " successfully")
         return redirect(url_for('showItemDescription', cat_name=cat_name, item_name=name))
     else:
         return render_template('edititem.html', categories=categories, cat_name=cat_name, item_name=item_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/delete', methods=['GET', 'POST'])
-# @auth.login_required
+@flask_login.login_required
 def deleteItem(cat_name, item_name):
     categories = session.query(Category).all()
     if request.method == 'POST':
@@ -252,13 +272,14 @@ def deleteItem(cat_name, item_name):
         session.delete(currentItem)
         session.commit()
 
+        flash("Deleted item successfully")
         return redirect(url_for('showCatItems', cat_name=cat_name))
     else:
         return render_template('deleteitem.html', categories=categories, cat_name=cat_name, item_name=item_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>')
-# @auth.login_required
+@flask_login.login_required
 def showItemDescription(cat_name, item_name):
     categories = session.query(Category).all()
     item = session.query(Item).filter_by(name=item_name).one()
@@ -268,5 +289,9 @@ def showItemDescription(cat_name, item_name):
 
 if __name__ == "__main__":
     app.secret_key = "super_secret_key"
+
+    login_manager.init_app(app)
+    login_manager.login_view = 'login'
+
     app.debug = True
     app.run(host="0.0.0.0", port=8000)
