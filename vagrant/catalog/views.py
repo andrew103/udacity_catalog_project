@@ -98,7 +98,7 @@ def verify_password(username, password):
 
 @login_manager.user_loader
 def load_user(user_id):
-    user = session.query(User).filter_by(id=int(user_id)).one()
+    user = session.query(User).filter_by(id=int(user_id)).first()
     return user
 
 # ================== END LOGIN REQUIREMENT CODE ===============
@@ -341,8 +341,8 @@ def jsonCatItems(cat_name):
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/json')
 def jsonItem(cat_name, item_name):
-    item = session.query(Item).filter_by(name=item_name)
-    return jsonify(MenuItems=item.serialize)
+    item = session.query(Item).filter_by(name=item_name).one()
+    return jsonify(Item=item.serialize)
 
 
 @app.route('/login', methods=['GET', 'POST'])
