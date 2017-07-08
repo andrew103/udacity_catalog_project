@@ -348,6 +348,7 @@ def jsonItem(cat_name, item_name):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
+
     login_session['state'] = state
 
     if request.method == 'POST':
