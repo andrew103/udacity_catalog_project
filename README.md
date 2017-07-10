@@ -15,8 +15,8 @@ category)
 7) Type `localhost:8000` into your browser to go to the site
 
 ***NOTICE*** BEFORE RUNNING `views.py`, YOU MUST INSTALL THESE MODULES:
-    * flask_login
-    * requests
+*flask_login
+*requests
 
 To install these modules, run the commands `sudo pip install flask_login` and
 `sudo pip install requests` in your virtual machine inside the shared `/vagrant`
@@ -25,6 +25,6 @@ folder.
 ## Accessing the JSON format files
 
 To access the json formatted links, follow these URIs:
-    * `/catalog/json`
-    * `/catalog/<string:cat_name>/json` -OR- `/catalog/<string:cat_name>/items/json`
-    * `/catalog/<string:cat_name>/<string:item_name>/json`
+ *`/catalog/json`
+ *`/catalog/<string:cat_name>/json` -OR- `/catalog/<string:cat_name>/items/json`
+ *`/catalog/<string:cat_name>/<string:item_name>/json`
