@@ -40,6 +40,10 @@ def verify_password(username, password):
 
 @login_manager.user_loader
 def load_user(user_id):
+    '''
+    Takes a unicode format user id and uses it to retrieve the respective user
+    object to be used by the login_manager
+    '''
     user = session.query(User).filter_by(id=int(user_id)).first()
     return user
 
@@ -49,6 +53,10 @@ def load_user(user_id):
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
+    '''
+    Facebook API code to allow for a user to login to the site using their
+    Facebook account
+    '''
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -120,6 +128,9 @@ def fbconnect():
 
 @app.route('/fbdisconnect')
 def fbdisconnect():
+    '''
+    Disconnects a user's Facebook account when they log out
+    '''
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
@@ -131,6 +142,11 @@ def fbdisconnect():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    '''
+    Google API code to allow for a user to login to the site using their
+    Google account
+    '''
+
     # Validate state token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -223,6 +239,8 @@ def gconnect():
     return output
 
 
+# Helper functions to help connect the third party login APIs with the User
+# database object
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session[
                    'email'])
@@ -247,6 +265,9 @@ def getUserID(email):
 
 @app.route('/gdisconnect')
 def gdisconnect():
+    '''
+    Disconnects a user's Google account when they log out
+    '''
     # Only disconnect a connected user.
     credentials = login_session.get('credentials')
     if credentials is None:
