@@ -1,3 +1,9 @@
+## Description
+
+The purpose of this project is to emulate a website that hosts a catalog of
+items within various categories (i.e. a sport such as soccer under a sports
+category)
+
 ## How to run this project
 
 1) Open the terminal and navigate to the project directory
