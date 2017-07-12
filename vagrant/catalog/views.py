@@ -409,6 +409,9 @@ def editCategory(cat_name):
         if name != '' and name != None:
             editedCat.name = name
 
+        session.add(editedCat)
+        session.commit()
+
         flash("Edited " + str(name) + " successfully")
         return redirect(url_for('showCatItems', cat_name=name))
     else:
@@ -472,6 +475,9 @@ def editItem(cat_name, item_name):
             editedItem.name = name
         if description != '' and description != None:
             editedItem.description = description
+
+        session.add(editedItem)
+        session.commit()
 
         flash("Edited " + str(name) + " successfully")
         return redirect(url_for('showItemDescription',
