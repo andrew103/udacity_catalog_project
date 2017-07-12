@@ -1,5 +1,8 @@
 from flask import Flask, jsonify, request, g, make_response
-from flask import url_for, redirect, render_template, flash
+from flask import url_for, redirect, flash
+
+from flask import render_template as flask_render
+
 from models import Base, User, Category, Item
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -288,7 +291,15 @@ def gdisconnect():
 
 #=================== END THIRD PARTY LOGIN CODE ===============
 
-#=================== BEGIN JSON FORMATTED PAGES ==============
+#=================== BEGIN TEMPLATE RENDERING ENGINE ==========
+
+def render_template(template_name, **params):
+    params['categories'] = session.query(Category).all()
+    return flask_render(template_name, **params)
+
+#=================== END TEMPLATE RENDERING ENGINE ============
+
+#=================== BEGIN JSON FORMATTED PAGES ===============
 
 @app.route('/catalog/json')
 def jsonCatalog():
@@ -320,7 +331,7 @@ def login():
     if request.method == 'POST':
         email = request.form['emailinput']
         password = request.form['passinput']
-        user = session.query(User).filter_by(email=email).one()
+        user = session.query(User).filter_by(email=email).first()
         try:
             if user.verify_password(password):
                 flask_login.login_user(user, force=True)
@@ -367,17 +378,13 @@ def signup():
 @app.route('/')
 @app.route('/catalog')
 def showCatalog():
-    categories = session.query(Category).all()
     latest = session.query(Item).all()[-5:]
-    return render_template('catalog.html',
-                            categories=categories,
-                            latest=latest)
+    return render_template('catalog.html', latest=latest)
 
 
 @app.route('/catalog/new', methods=['GET', 'POST'])
 @flask_login.login_required
 def newCategory():
-    categories = session.query(Category).all()
     if request.method == 'POST':
         name = request.form['cat_name']
         user = flask_login.current_user
@@ -389,13 +396,12 @@ def newCategory():
         flash("Created " + str(name) + " successfully")
         return redirect(url_for('showCatItems', cat_name=name))
     else:
-        return render_template('newcategory.html', categories=categories)
+        return render_template('newcategory.html')
 
 
 @app.route('/catalog/<string:cat_name>/edit', methods=['GET', 'POST'])
 @flask_login.login_required
 def editCategory(cat_name):
-    categories = session.query(Category).all()
     if request.method == 'POST':
         name = request.form['cat_name']
         editedCat = session.query(Category).filter_by(name=cat_name).one()
@@ -406,15 +412,12 @@ def editCategory(cat_name):
         flash("Edited " + str(name) + " successfully")
         return redirect(url_for('showCatItems', cat_name=name))
     else:
-        return render_template('editcategory.html',
-                                categories=categories,
-                                cat_name=cat_name)
+        return render_template('editcategory.html', cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>/delete', methods=['GET', 'POST'])
 @flask_login.login_required
 def deleteCategory(cat_name):
-    categories = session.query(Category).all()
     if request.method == 'POST':
         currentCat = session.query(Category).filter_by(name=cat_name).one()
         session.delete(currentCat)
@@ -423,27 +426,20 @@ def deleteCategory(cat_name):
         flash("Category deleted")
         return redirect(url_for('showCatalog'))
     else:
-        return render_template('deletecategory.html',
-                                categories=categories,
-                                cat_name=cat_name)
+        return render_template('deletecategory.html', cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>')
 @app.route('/catalog/<string:cat_name>/items')
 def showCatItems(cat_name):
-    categories = session.query(Category).all()
     currentCat = session.query(Category).filter_by(name=cat_name).one()
     items = session.query(Item).filter_by(cat_name=currentCat.name).all()
-    return render_template('showitems.html',
-                            categories=categories,
-                            cat_name=cat_name,
-                            items=items)
+    return render_template('showitems.html', cat_name=cat_name, items=items)
 
 
 @app.route('/catalog/<string:cat_name>/new', methods=['GET', 'POST'])
 @flask_login.login_required
 def newItem(cat_name):
-    categories = session.query(Category).all()
     if request.method == 'POST':
         name = request.form['item_name']
         description = request.form['item_description']
@@ -460,16 +456,13 @@ def newItem(cat_name):
                                 cat_name=cat_name,
                                 item_name=name))
     else:
-        return render_template('newitem.html',
-                                categories=categories,
-                                cat_name=cat_name)
+        return render_template('newitem.html', cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/edit',
             methods=['GET', 'POST'])
 @flask_login.login_required
 def editItem(cat_name, item_name):
-    categories = session.query(Category).all()
     if request.method == 'POST':
         name = request.form['item_name']
         description = request.form['item_description']
@@ -486,7 +479,6 @@ def editItem(cat_name, item_name):
                                     item_name=name))
     else:
         return render_template('edititem.html',
-                                categories=categories,
                                 cat_name=cat_name,
                                 item_name=item_name)
 
@@ -495,7 +487,6 @@ def editItem(cat_name, item_name):
             methods=['GET', 'POST'])
 @flask_login.login_required
 def deleteItem(cat_name, item_name):
-    categories = session.query(Category).all()
     if request.method == 'POST':
         currentItem = session.query(Item).filter_by(name=item_name).one()
         session.delete(currentItem)
@@ -505,21 +496,18 @@ def deleteItem(cat_name, item_name):
         return redirect(url_for('showCatItems', cat_name=cat_name))
     else:
         return render_template('deleteitem.html',
-                                categories=categories,
                                 cat_name=cat_name,
                                 item_name=item_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>')
 def showItemDescription(cat_name, item_name):
-    categories = session.query(Category).all()
     item = session.query(Item).filter_by(name=item_name).one_or_none()
-    if item == NoneType:
+    if item is None:
         flash("Invalid item id")
         return redirect(url_for('showCatItems', cat_name=cat_name))
 
     return render_template('showitemdetail.html',
-                            categories=categories,
                             cat_name=cat_name,
                             item=item)
 
