@@ -303,10 +303,8 @@ def render_template(template_name, **params):
 
 def user_check(object):
     if object.user_id == flask_login.current_user.id:
-        pass
-    else:
-        flash("You are not the creator of this item/category")
-        return redirect(url_for('showCatalog'))
+        return True
+    return False
 
 #=================== END USER CHECK CODE ======================
 
@@ -428,6 +426,9 @@ def editCategory(cat_name):
             return redirect(url_for('showCatItems', cat_name=name))
         else:
             return render_template('editcategory.html', cat_name=cat_name)
+    else:
+        flash("You are not the creator of this item/category")
+        return redirect(url_for('showCatalog'))
 
 
 @app.route('/catalog/<string:cat_name>/delete', methods=['GET', 'POST'])
@@ -443,6 +444,9 @@ def deleteCategory(cat_name):
             return redirect(url_for('showCatalog'))
         else:
             return render_template('deletecategory.html', cat_name=cat_name)
+    else:
+        flash("You are not the creator of this item/category")
+        return redirect(url_for('showCatalog'))
 
 
 @app.route('/catalog/<string:cat_name>')
@@ -501,6 +505,9 @@ def editItem(cat_name, item_name):
             return render_template('edititem.html',
                                     cat_name=cat_name,
                                     item_name=item_name)
+    else:
+        flash("You are not the creator of this item/category")
+        return redirect(url_for('showCatalog'))
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/delete',
@@ -519,6 +526,9 @@ def deleteItem(cat_name, item_name):
             return render_template('deleteitem.html',
                                     cat_name=cat_name,
                                     item_name=item_name)
+    else:
+        flash("You are not the creator of this item/category")
+        return redirect(url_for('showCatalog'))
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>')
