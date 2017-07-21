@@ -412,37 +412,37 @@ def newCategory():
 
 @app.route('/catalog/<string:cat_name>/edit', methods=['GET', 'POST'])
 @flask_login.login_required
-@user_check(session.query(Category).filter_by(name=cat_name).one())
 def editCategory(cat_name):
-    if request.method == 'POST':
-        name = request.form['cat_name']
-        editedCat = session.query(Category).filter_by(name=cat_name).one()
+    editedCat = session.query(Category).filter_by(name=cat_name).one()
+    if user_check(currentCat):
+        if request.method == 'POST':
+            name = request.form['cat_name']
 
-        if name != '' and name != None:
-            editedCat.name = name
+            if name != '' and name != None:
+                editedCat.name = name
 
-        session.add(editedCat)
-        session.commit()
+            session.add(editedCat)
+            session.commit()
 
-        flash("Edited " + str(name) + " successfully")
-        return redirect(url_for('showCatItems', cat_name=name))
-    else:
-        return render_template('editcategory.html', cat_name=cat_name)
+            flash("Edited " + str(name) + " successfully")
+            return redirect(url_for('showCatItems', cat_name=name))
+        else:
+            return render_template('editcategory.html', cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>/delete', methods=['GET', 'POST'])
 @flask_login.login_required
-@user_check(session.query(Category).filter_by(name=cat_name).one())
 def deleteCategory(cat_name):
-    if request.method == 'POST':
-        currentCat = session.query(Category).filter_by(name=cat_name).one()
-        session.delete(currentCat)
-        session.commit()
+    currentCat = session.query(Category).filter_by(name=cat_name).one()
+    if user_check(currentCat):
+        if request.method == 'POST':
+            session.delete(currentCat)
+            session.commit()
 
-        flash("Category deleted")
-        return redirect(url_for('showCatalog'))
-    else:
-        return render_template('deletecategory.html', cat_name=cat_name)
+            flash("Category deleted")
+            return redirect(url_for('showCatalog'))
+        else:
+            return render_template('deletecategory.html', cat_name=cat_name)
 
 
 @app.route('/catalog/<string:cat_name>')
@@ -478,47 +478,47 @@ def newItem(cat_name):
 @app.route('/catalog/<string:cat_name>/<string:item_name>/edit',
             methods=['GET', 'POST'])
 @flask_login.login_required
-@user_check(session.query(Item).filter_by(name=item_name).one())
 def editItem(cat_name, item_name):
-    if request.method == 'POST':
-        name = request.form['item_name']
-        description = request.form['item_description']
-        editedItem = session.query(Item).filter_by(name=item_name).one()
+    editedItem = session.query(Item).filter_by(name=item_name).one()
+    if user_check(currentItem):
+        if request.method == 'POST':
+            name = request.form['item_name']
+            description = request.form['item_description']
 
-        if name != '' and name != None:
-            editedItem.name = name
-        if description != '' and description != None:
-            editedItem.description = description
+            if name != '' and name != None:
+                editedItem.name = name
+            if description != '' and description != None:
+                editedItem.description = description
 
-        session.add(editedItem)
-        session.commit()
+            session.add(editedItem)
+            session.commit()
 
-        flash("Edited " + str(name) + " successfully")
-        return redirect(url_for('showItemDescription',
+            flash("Edited " + str(name) + " successfully")
+            return redirect(url_for('showItemDescription',
+                                        cat_name=cat_name,
+                                        item_name=name))
+        else:
+            return render_template('edititem.html',
                                     cat_name=cat_name,
-                                    item_name=name))
-    else:
-        return render_template('edititem.html',
-                                cat_name=cat_name,
-                                item_name=item_name)
+                                    item_name=item_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>/delete',
             methods=['GET', 'POST'])
 @flask_login.login_required
-@user_check(session.query(Item).filter_by(name=item_name).one())
 def deleteItem(cat_name, item_name):
-    if request.method == 'POST':
-        currentItem = session.query(Item).filter_by(name=item_name).one()
-        session.delete(currentItem)
-        session.commit()
+    currentItem = session.query(Item).filter_by(name=item_name).one()
+    if user_check(currentItem):
+        if request.method == 'POST':
+            session.delete(currentItem)
+            session.commit()
 
-        flash("Deleted item successfully")
-        return redirect(url_for('showCatItems', cat_name=cat_name))
-    else:
-        return render_template('deleteitem.html',
-                                cat_name=cat_name,
-                                item_name=item_name)
+            flash("Deleted item successfully")
+            return redirect(url_for('showCatItems', cat_name=cat_name))
+        else:
+            return render_template('deleteitem.html',
+                                    cat_name=cat_name,
+                                    item_name=item_name)
 
 
 @app.route('/catalog/<string:cat_name>/<string:item_name>')
