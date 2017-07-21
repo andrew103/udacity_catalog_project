@@ -299,6 +299,17 @@ def render_template(template_name, **params):
 
 #=================== END TEMPLATE RENDERING ENGINE ============
 
+#=================== BEGIN USER CHECK CODE ====================
+
+def user_check(object):
+    if object.user_id == flask_login.current_user.id:
+        continue
+    else:
+        flash("You are not the creator of this item/category")
+        return redirect(url_for('showCatalog'))
+
+#=================== END USER CHECK CODE ======================
+
 #=================== BEGIN JSON FORMATTED PAGES ===============
 
 @app.route('/catalog/json')
@@ -401,6 +412,7 @@ def newCategory():
 
 @app.route('/catalog/<string:cat_name>/edit', methods=['GET', 'POST'])
 @flask_login.login_required
+@user_check(session.query(Category).filter_by(name=cat_name).one())
 def editCategory(cat_name):
     if request.method == 'POST':
         name = request.form['cat_name']
@@ -420,6 +432,7 @@ def editCategory(cat_name):
 
 @app.route('/catalog/<string:cat_name>/delete', methods=['GET', 'POST'])
 @flask_login.login_required
+@user_check(session.query(Category).filter_by(name=cat_name).one())
 def deleteCategory(cat_name):
     if request.method == 'POST':
         currentCat = session.query(Category).filter_by(name=cat_name).one()
@@ -465,6 +478,7 @@ def newItem(cat_name):
 @app.route('/catalog/<string:cat_name>/<string:item_name>/edit',
             methods=['GET', 'POST'])
 @flask_login.login_required
+@user_check(session.query(Item).filter_by(name=item_name).one())
 def editItem(cat_name, item_name):
     if request.method == 'POST':
         name = request.form['item_name']
@@ -492,6 +506,7 @@ def editItem(cat_name, item_name):
 @app.route('/catalog/<string:cat_name>/<string:item_name>/delete',
             methods=['GET', 'POST'])
 @flask_login.login_required
+@user_check(session.query(Item).filter_by(name=item_name).one())
 def deleteItem(cat_name, item_name):
     if request.method == 'POST':
         currentItem = session.query(Item).filter_by(name=item_name).one()
