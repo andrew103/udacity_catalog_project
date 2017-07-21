@@ -303,7 +303,7 @@ def render_template(template_name, **params):
 
 def user_check(object):
     if object.user_id == flask_login.current_user.id:
-        continue
+        pass
     else:
         flash("You are not the creator of this item/category")
         return redirect(url_for('showCatalog'))
