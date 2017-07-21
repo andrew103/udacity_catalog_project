@@ -414,7 +414,7 @@ def newCategory():
 @flask_login.login_required
 def editCategory(cat_name):
     editedCat = session.query(Category).filter_by(name=cat_name).one()
-    if user_check(currentCat):
+    if user_check(editedCat):
         if request.method == 'POST':
             name = request.form['cat_name']
 
@@ -480,7 +480,7 @@ def newItem(cat_name):
 @flask_login.login_required
 def editItem(cat_name, item_name):
     editedItem = session.query(Item).filter_by(name=item_name).one()
-    if user_check(currentItem):
+    if user_check(editedItem):
         if request.method == 'POST':
             name = request.form['item_name']
             description = request.form['item_description']
